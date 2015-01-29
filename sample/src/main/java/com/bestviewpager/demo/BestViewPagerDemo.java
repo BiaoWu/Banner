@@ -23,7 +23,7 @@ public class BestViewPagerDemo extends Activity {
         setContentView(R.layout.activity_best_view_pager_demo_item);
 
         viewpager = (BestViewPager) findViewById(R.id.wi_viewpager);
-    
+
         adapter = new DemoAdapter(this);
         viewpager.setAdapter(adapter);//直接设置自己的adapter即可
         //viewpager.setAdapter(adapter,false); //默认是true

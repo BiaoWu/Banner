@@ -23,10 +23,9 @@ public class BestViewPagerDemo extends Activity {
         setContentView(R.layout.activity_best_view_pager_demo_item);
 
         viewpager = (BestViewPager) findViewById(R.id.wi_viewpager);
-
+    
         adapter = new DemoAdapter(this);
         viewpager.setAdapter(adapter);//直接设置自己的adapter即可
-
         //viewpager.setAdapter(adapter,false); //默认是true
         //viewpager.setOpenLoop(true);
         //viewpager.setOpenInfinite(true);//if loop is open , infinite always true
@@ -35,6 +34,13 @@ public class BestViewPagerDemo extends Activity {
 
         adapter.setData(ThinkData.getData());
         viewpager.notifyDataSetChanged();
+
+        viewpager.setOnPagerItemClickListener(new BestViewPager.OnPagerItemClickListener() {
+            @Override
+            public void pagerItemClicked(int position) {
+                // do yourself
+            }
+        });
     }
 
 

@@ -1,4 +1,4 @@
-package com.bestviewpager.demo;
+package com.autoandinfiniteviewpager.demo;
 
 import android.app.Application;
 import android.content.Context;

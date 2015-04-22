@@ -1,7 +1,6 @@
-package com.bestviewpager;
+package com.autoandinfiniteviewpager;
 
 import android.content.Context;
-import android.nfc.Tag;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.view.PagerAdapter;
@@ -25,13 +24,13 @@ import java.util.Map;
  *
  * @author wubiao
  */
-public class BestViewPager extends ViewPager {
+public class AutoAndInfiniteViewPager extends ViewPager {
     private static final String TAG = "BestViewPager";
-    public BestViewPager(Context context) {
+    public AutoAndInfiniteViewPager(Context context) {
         this(context, null);
     }
 
-    public BestViewPager(Context context, AttributeSet attrs) {
+    public AutoAndInfiniteViewPager(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }

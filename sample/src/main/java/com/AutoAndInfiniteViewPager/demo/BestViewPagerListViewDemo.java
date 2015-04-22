@@ -1,4 +1,4 @@
-package com.bestviewpager.demo;
+package com.autoandinfiniteviewpager.demo;
 
 import android.app.Activity;
 import android.content.Context;
@@ -9,10 +9,10 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.bestviewpager.BestViewPager;
-import com.bestviewpager.demo.adapter.ThinkBaseAdapter;
-import com.bestviewpager.demo.adapter.ThinkBasePagerAdapter;
-import com.bestviewpager.demo.util.ThinkData;
+import com.autoandinfiniteviewpager.AutoAndInfiniteViewPager;
+import com.autoandinfiniteviewpager.demo.adapter.ThinkBaseAdapter;
+import com.autoandinfiniteviewpager.demo.adapter.ThinkBasePagerAdapter;
+import com.autoandinfiniteviewpager.demo.util.ThinkData;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 import java.util.ArrayList;
@@ -49,11 +49,11 @@ public class BestViewPagerListViewDemo extends Activity {
     }
 
     private static class DemoListAdapter extends ThinkBaseAdapter<List<String>> {
-        private List<BestViewPager> viewPagers = new ArrayList<>();
+        private List<AutoAndInfiniteViewPager> viewPagers = new ArrayList<>();
 
         //remember stopLoop
         public void stopLoop() {
-            for (BestViewPager bestViewPager : viewPagers) {
+            for (AutoAndInfiniteViewPager bestViewPager : viewPagers) {
                 bestViewPager.stopLoop();
             }
         }
@@ -68,7 +68,7 @@ public class BestViewPagerListViewDemo extends Activity {
             if (convertView == null) {
                 convertView = inflater.inflate(R.layout.activity_best_view_pager_demo_item, null);
                 holder = new ViewHolder();
-                holder.bestViewPager = (BestViewPager) convertView.findViewById(R.id.wi_viewpager);
+                holder.bestViewPager = (AutoAndInfiniteViewPager) convertView.findViewById(R.id.wi_viewpager);
 
                 viewPagers.add(holder.bestViewPager);
 
@@ -82,7 +82,7 @@ public class BestViewPagerListViewDemo extends Activity {
                 holder.bestViewPager.setIntervalTime((new Random().nextInt(2) + 3) * 1000);//设置间隔时间,默认值是3000毫秒
                 //无须手动调用holder.bestViewPager.setCurrentItem(),在notifyDataSetChanged中已经处理
 
-                holder.bestViewPager.setOnPagerItemClickListener(new BestViewPager.OnPagerItemClickListener() {
+                holder.bestViewPager.setOnPagerItemClickListener(new AutoAndInfiniteViewPager.OnPagerItemClickListener() {
                     @Override
                     public void pagerItemClicked(int itemPosition) {
                         Toast.makeText(context, "listview的第:" + position + "个item的bestviewpager的第" + itemPosition + "个tiem", Toast.LENGTH_LONG).show();
@@ -101,7 +101,7 @@ public class BestViewPagerListViewDemo extends Activity {
         }
 
         private class ViewHolder {
-            public BestViewPager bestViewPager;
+            public AutoAndInfiniteViewPager bestViewPager;
             public DemoAdapter adapter;
         }
     }

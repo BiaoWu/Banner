@@ -1,4 +1,4 @@
-package com.bestviewpager.demo.util;
+package com.autoandinfiniteviewpager.demo.util;
 
 import java.util.ArrayList;
 import java.util.List;

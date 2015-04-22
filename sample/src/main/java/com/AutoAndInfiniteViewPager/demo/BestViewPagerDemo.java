@@ -1,4 +1,4 @@
-package com.bestviewpager.demo;
+package com.autoandinfiniteviewpager.demo;
 
 import android.app.Activity;
 import android.content.Context;
@@ -6,15 +6,15 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.bestviewpager.BestViewPager;
-import com.bestviewpager.demo.adapter.ThinkBasePagerAdapter;
-import com.bestviewpager.demo.util.ThinkData;
+import com.autoandinfiniteviewpager.AutoAndInfiniteViewPager;
+import com.autoandinfiniteviewpager.demo.adapter.ThinkBasePagerAdapter;
+import com.autoandinfiniteviewpager.demo.util.ThinkData;
 import com.nostra13.universalimageloader.core.ImageLoader;
 
 
 public class BestViewPagerDemo extends Activity {
 
-    private BestViewPager viewpager;
+    private AutoAndInfiniteViewPager viewpager;
     private DemoAdapter adapter;
 
     @Override
@@ -22,7 +22,7 @@ public class BestViewPagerDemo extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_best_view_pager_demo_item);
 
-        viewpager = (BestViewPager) findViewById(R.id.wi_viewpager);
+        viewpager = (AutoAndInfiniteViewPager) findViewById(R.id.wi_viewpager);
 
         adapter = new DemoAdapter(this);
         viewpager.setAdapter(adapter);//直接设置自己的adapter即可
@@ -35,7 +35,7 @@ public class BestViewPagerDemo extends Activity {
         adapter.setData(ThinkData.getData());
         viewpager.notifyDataSetChanged();
 
-        viewpager.setOnPagerItemClickListener(new BestViewPager.OnPagerItemClickListener() {
+        viewpager.setOnPagerItemClickListener(new AutoAndInfiniteViewPager.OnPagerItemClickListener() {
             @Override
             public void pagerItemClicked(int position) {
                 // do yourself

@@ -1,8 +1,8 @@
-## BestViewPager 简介
-* BestViewPager 缘起是广告轮播。
-* BestViewPager 最低兼容android 2.2 (api level 8)
+## AutoAndInfiniteViewPager 简介
+* AutoAndInfiniteViewPager 缘起是广告轮播。
+* AutoAndInfiniteViewPager 最低兼容android 2.2 (api level 8)
 
-## 目前 BestViewPager 主要有以下功能：
+## 目前 AutoAndInfiniteViewPager 主要有以下功能：
 * item 单击：
 * item 左右滑动事件拦截：
 * 自动轮播：
@@ -14,7 +14,7 @@
 
 ## item 单击使用方法：
 
-	viewpager.setOnPagerItemClickListener(new BestViewPager.OnPagerItemClickListener() {
+	viewpager.setOnPagerItemClickListener(new AutoAndInfiniteViewPager.OnPagerItemClickListener() {
 		@Override
 		public void pagerItemClicked(int position) {
 			// do yourself

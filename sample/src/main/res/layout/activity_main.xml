@@ -15,10 +15,4 @@
         android:layout_height="wrap_content"
         android:text="BestViewPagerDemo"/>
 
-    <Button
-        android:id="@+id/bestViewPager_listview"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="BestViewPagerListViewDemo"/>
-
 </LinearLayout>

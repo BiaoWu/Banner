@@ -41,6 +41,8 @@ public class AutoAndInfiniteViewPager extends ViewPager {
         setOnTouchListener(new MyOnTouchListener());//for single click
         infiniteLoopPageChangeListener = new InfiniteLoopPageChangeListener();
         super.setOnPageChangeListener(infiniteLoopPageChangeListener);
+        multifunctionPagerAdapter = new InfinitePagerAdapter();
+        super.setAdapter(multifunctionPagerAdapter);
     }
 
     @Override
@@ -190,11 +192,7 @@ public class AutoAndInfiniteViewPager extends ViewPager {
     public void setAdapter(PagerAdapter adapter, boolean isOpenLoop, boolean isOpenInfinite) {
         this.isOpenLoop = isOpenLoop;
         this.isOpenInfinite = isOpenInfinite;
-        if (multifunctionPagerAdapter == null) {
-            multifunctionPagerAdapter = new InfinitePagerAdapter();
-        }
         multifunctionPagerAdapter.setAdapter(adapter);
-        super.setAdapter(multifunctionPagerAdapter);
     }
 
     /**

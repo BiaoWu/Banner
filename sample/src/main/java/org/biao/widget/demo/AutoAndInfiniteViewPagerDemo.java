@@ -9,7 +9,7 @@ import android.widget.ImageView;
 
 import com.nostra13.universalimageloader.core.ImageLoader;
 
-import org.biao.widget.AutoAndInfiniteViewPager;
+import org.biao.widget.Banner;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,7 +17,7 @@ import java.util.List;
 
 public class AutoAndInfiniteViewPagerDemo extends Activity {
 
-    private AutoAndInfiniteViewPager viewpager;
+    private Banner viewpager;
     private DemoAdapter adapter;
 
     @Override
@@ -25,7 +25,7 @@ public class AutoAndInfiniteViewPagerDemo extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_best_view_pager_demo_item);
 
-        viewpager = (AutoAndInfiniteViewPager) findViewById(R.id.wi_viewpager);
+        viewpager = (Banner) findViewById(R.id.wi_viewpager);
 
         adapter = new DemoAdapter();
         viewpager.setAdapter(adapter);//直接设置自己的adapter即可
@@ -38,7 +38,7 @@ public class AutoAndInfiniteViewPagerDemo extends Activity {
         adapter.updateDate(ThinkData.getData());
         viewpager.notifyDataSetChanged();
 
-        viewpager.setOnPagerItemClickListener(new AutoAndInfiniteViewPager.OnPagerItemClickListener() {
+        viewpager.setOnPagerItemClickListener(new Banner.OnPagerItemClickListener() {
             @Override
             public void pagerItemClicked(int position) {
                 // do yourself

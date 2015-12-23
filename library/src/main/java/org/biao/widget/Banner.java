@@ -1,8 +1,6 @@
 package org.biao.widget;
 
 import android.content.Context;
-import android.os.Handler;
-import android.os.Message;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
@@ -10,6 +8,7 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 
@@ -23,16 +22,20 @@ import android.view.ViewParent;
  *
  * @author wubiao
  */
-public class AutoAndInfiniteViewPager extends ViewPager {
-    private static final String TAG = AutoAndInfiniteViewPager.class.getSimpleName();
+public class Banner extends ViewPager {
+    private static final String TAG = Banner.class.getSimpleName();
     private static final boolean DEBUG = false;
     private InfiniteLoopPageChangeListener infiniteLoopPageChangeListener;
 
-    public AutoAndInfiniteViewPager(Context context) {
+    private float mPagingTouchSlop;
+
+    private LoopTask mLoopTask;
+
+    public Banner(Context context) {
         this(context, null);
     }
 
-    public AutoAndInfiniteViewPager(Context context, AttributeSet attrs) {
+    public Banner(Context context, AttributeSet attrs) {
         super(context, attrs);
         init();
     }
@@ -43,48 +46,16 @@ public class AutoAndInfiniteViewPager extends ViewPager {
         super.setOnPageChangeListener(infiniteLoopPageChangeListener);
         multifunctionPagerAdapter = new InfinitePagerAdapter();
         super.setAdapter(multifunctionPagerAdapter);
+
+        final ViewConfiguration conf = ViewConfiguration.get(getContext());
+        mPagingTouchSlop = conf.getScaledTouchSlop() * 2;
+
+        mLoopTask = new LoopTask();
     }
 
     @Override
     public void setOnPageChangeListener(OnPageChangeListener listener) {
         infiniteLoopPageChangeListener.setOnPagerChangeListener(listener);
-    }
-
-    /**
-     * 处理单击事件
-     * for single click
-     *
-     * @author wubiao
-     */
-    private class MyOnTouchListener implements OnTouchListener {
-        private static final int INTERVAL_TIME = 500;
-        private long startTimeMillis;
-        private float onTouchDownX;
-
-        @Override
-        public boolean onTouch(View v, MotionEvent event) {
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    onTouchDownX = event.getX();
-                    startTimeMillis = System.currentTimeMillis();
-                    break;
-                case MotionEvent.ACTION_MOVE:
-                    break;
-                case MotionEvent.ACTION_UP:
-                    if (System.currentTimeMillis() - startTimeMillis < INTERVAL_TIME
-                            && event.getX() == onTouchDownX) {
-                        if (DEBUG)
-                            Log.i(this.getClass().getSimpleName(), "item click----"
-                                    + getCurrentItem());
-                        if (onPagerItemClickListener != null) {//single click
-                            onPagerItemClickListener.pagerItemClicked(getActualPosition());
-                        }
-                        return true;
-                    }
-                    break;
-            }
-            return false;
-        }
     }
 
     private OnPagerItemClickListener onPagerItemClickListener;
@@ -106,6 +77,20 @@ public class AutoAndInfiniteViewPager extends ViewPager {
     private float onTouchDownX;
     private float onTouchDownY;
     private boolean isIntercept = false;
+    private DispatchTouchEventListener mDispatchTouchEventListener;
+
+    public void setDispatchTouchEventListener(DispatchTouchEventListener dispatchTouchEventListener) {
+        mDispatchTouchEventListener = dispatchTouchEventListener;
+    }
+
+    public interface DispatchTouchEventListener {
+        void disallowInterceptTouchEvent(boolean disallow);
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        return super.onInterceptTouchEvent(ev);
+    }
 
     /**
      * 自己处理左右滑动,比如作为list view item时
@@ -123,6 +108,9 @@ public class AutoAndInfiniteViewPager extends ViewPager {
                 onTouchDownX = ev.getX();
                 onTouchDownY = ev.getY();
                 getParent().requestDisallowInterceptTouchEvent(true);
+                if (mDispatchTouchEventListener != null) {
+                    mDispatchTouchEventListener.disallowInterceptTouchEvent(true);
+                }
                 break;
             case MotionEvent.ACTION_MOVE:
                 // when isIntercept, only Intercept
@@ -132,17 +120,24 @@ public class AutoAndInfiniteViewPager extends ViewPager {
                     getParent().requestDisallowInterceptTouchEvent(true);
                 } else {
                     // check first down
-                    if (Math.abs(onTouchDownX - ev.getX()) > Math.abs(onTouchDownY
-                            - ev.getY())) {
+                    float offsetX = onTouchDownX - ev.getX();
+                    float offsetY = onTouchDownY - ev.getY();
+                    if ((Math.abs(offsetX) > mPagingTouchSlop && Math.abs(offsetX) * 2 > Math.abs(offsetY))) {
                         stopLoop();
                         isIntercept = true;
                         if (DEBUG)
                             Log.i(TAG, "dispatchTouchEvent ACTION_MOVE isIntercept = false change to true");
                         getParent().requestDisallowInterceptTouchEvent(true);
+                        if (mDispatchTouchEventListener != null) {
+                            mDispatchTouchEventListener.disallowInterceptTouchEvent(true);
+                        }
                     } else {
                         if (DEBUG)
                             Log.i(TAG, "dispatchTouchEvent ACTION_MOVE isIntercept = false too");
                         getParent().requestDisallowInterceptTouchEvent(false);
+                        if (mDispatchTouchEventListener != null) {
+                            mDispatchTouchEventListener.disallowInterceptTouchEvent(false);
+                        }
                     }
                 }
                 break;
@@ -150,6 +145,9 @@ public class AutoAndInfiniteViewPager extends ViewPager {
                 if (DEBUG)
                     Log.i(TAG, "dispatchTouchEvent ACTION_UP");
                 getParent().requestDisallowInterceptTouchEvent(false);
+                if (mDispatchTouchEventListener != null) {
+                    mDispatchTouchEventListener.disallowInterceptTouchEvent(false);
+                }
                 startLoop();
                 break;
         }
@@ -190,7 +188,7 @@ public class AutoAndInfiniteViewPager extends ViewPager {
      * @param isOpenInfinite true is open infinite 开启无限左右滑动
      */
     public void setAdapter(PagerAdapter adapter, boolean isOpenLoop, boolean isOpenInfinite) {
-        this.isOpenLoop = isOpenLoop;
+        mLoopTask.isOpenLoop = isOpenLoop;
         this.isOpenInfinite = isOpenInfinite;
         multifunctionPagerAdapter.setAdapter(adapter);
     }
@@ -216,11 +214,121 @@ public class AutoAndInfiniteViewPager extends ViewPager {
      * @param isOpenLoop true is open
      */
     public void setOpenLoop(boolean isOpenLoop) {
-        this.isOpenLoop = isOpenLoop;
+        mLoopTask.isOpenLoop = isOpenLoop;
     }
 
     public boolean isOpenLoop() {
-        return isOpenLoop;
+        return mLoopTask.isOpenLoop;
+    }
+
+    private int getActualPosition() {
+        return isOpenInfinite ? getActualPosition(getCurrentItem()) : getCurrentItem();
+    }
+
+    //获取到实际的位置
+    private int getActualPosition(int position) {
+        if (isOpenInfinite) {
+            if (position == 0) {
+                position = getAdapter().getCount() - 3;
+            } else if (position == getAdapter().getCount() - 1) {
+                position = 0;
+            } else {
+                position -= 1;
+            }
+        }
+        return position;
+    }
+
+
+    /**
+     * 数据改变时用来刷新数据
+     * if data is change , invoke this method
+     */
+    public void notifyDataSetChanged() {
+        stopLoop();
+        getAdapter().notifyDataSetChanged();
+        setCurrentItem(isOpenInfinite ? 1 : 0);
+        startLoop();
+    }
+
+    /**
+     * 默认间隔时间是3000毫秒,如果需要设置即可,单位是毫秒
+     * default interval time is 3000 milliseconds
+     * if you want custom you can invoke this method
+     *
+     * @param intervalTime 间隔时间
+     */
+    public void setIntervalTime(int intervalTime) {
+        if (intervalTime > 0) {
+            mLoopTask.intervalTime = intervalTime;
+        }
+    }
+
+    private int getNextPosition() {
+        int position = getCurrentItem();
+        if (position == getAdapter().getCount() - 1) {
+            position = 0;
+        } else {
+            position++;
+        }
+        return position;
+    }
+
+    /**
+     * 启动轮播
+     */
+    public void startLoop() {
+        mLoopTask.startLoop();
+    }
+
+    /**
+     * 停止轮播
+     */
+    public void stopLoop() {
+        mLoopTask.stopLoop();
+    }
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        mLoopTask.finish();
+    }
+
+    /**
+     * 处理单击事件
+     * for single click
+     *
+     * @author wubiao
+     */
+    private class MyOnTouchListener implements OnTouchListener {
+        private static final int INTERVAL_TIME = 500;
+        private long startTimeMillis;
+        private boolean isMoved;
+
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    isMoved = false;
+                    startTimeMillis = System.currentTimeMillis();
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    isMoved = true;
+                    break;
+                case MotionEvent.ACTION_UP:
+                    if (!isMoved && System.currentTimeMillis() - startTimeMillis < INTERVAL_TIME) {
+                        if (DEBUG)
+                            Log.i(this.getClass().getSimpleName(), "item click----"
+                                    + getCurrentItem());
+                        if (onPagerItemClickListener != null) {//single click
+                            onPagerItemClickListener.pagerItemClicked(getActualPosition());
+                        }
+                        return true;
+                    }
+                    break;
+            }
+            return false;
+        }
     }
 
     /**
@@ -276,24 +384,6 @@ public class AutoAndInfiniteViewPager extends ViewPager {
         public int getItemPosition(Object object) {
             return adapter.getItemPosition(object);
         }
-    }
-
-    private int getActualPosition() {
-        return isOpenInfinite ? getActualPosition(getCurrentItem()) : getCurrentItem();
-    }
-
-    //获取到实际的位置
-    private int getActualPosition(int position) {
-        if (isOpenInfinite) {
-            if (position == 0) {
-                position = getAdapter().getCount() - 3;
-            } else if (position == getAdapter().getCount() - 1) {
-                position = 0;
-            } else {
-                position -= 1;
-            }
-        }
-        return position;
     }
 
     /**
@@ -358,85 +448,38 @@ public class AutoAndInfiniteViewPager extends ViewPager {
         }
     }
 
-    /**
-     * 数据改变时用来刷新数据
-     * if data is change , invoke this method
-     */
-    public void notifyDataSetChanged() {
-        stopLoop();
-        getAdapter().notifyDataSetChanged();
-        setCurrentItem(isOpenInfinite ? 1 : 0);
-        startLoop();
-    }
+    private class LoopTask implements Runnable {
+        //for loop
+        private static final int DEFAULT_INTERVAL_TIME = 3000;
+        int intervalTime = DEFAULT_INTERVAL_TIME;
+        boolean isLooping;
+        boolean isOpenLoop;
 
-    //for loop
-    private static final int DEFAULT_INTERVAL_TIME = 3000;
-    private static final int MESSAGE_FLAG = 0;
-    private int intervalTime = DEFAULT_INTERVAL_TIME;
-    private boolean isLooping;
-    private boolean isOpenLoop;
-    private Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            if (isOpenLoop) {
-                setCurrentItem(getNextPosition());
-                handler.postDelayed(loopTask, intervalTime);
+        void startLoop() {
+            if (isOpenLoop && !isLooping) {
+                isLooping = true;
+                postDelayed(this, intervalTime);
             }
         }
-    };
 
-    /**
-     * 默认间隔时间是3000毫秒,如果需要设置即可,单位是毫秒
-     * default interval time is 3000 milliseconds
-     * if you want custom you can invoke this method
-     *
-     * @param intervalTime 间隔时间
-     */
-    public void setIntervalTime(int intervalTime) {
-        if (intervalTime > 0) {
-            this.intervalTime = intervalTime;
-        }
-    }
-
-    private int getNextPosition() {
-        int position = getCurrentItem();
-        if (position == getAdapter().getCount() - 1) {
-            position = 0;
-        } else {
-            position++;
-        }
-        return position;
-    }
-
-    /**
-     * 启动轮播
-     */
-    public void startLoop() {
-        if (isOpenLoop && !isLooping) {
-            isLooping = true;
-            handler.postDelayed(loopTask, intervalTime);
-        }
-    }
-
-    /**
-     * 停止轮播
-     */
-    public void stopLoop() {
-        if (isOpenLoop && isLooping) {
+        void stopLoop() {
             isLooping = false;
-            handler.removeMessages(MESSAGE_FLAG);
+            removeCallbacks(this);
         }
-    }
 
-    private Runnable loopTask = new Runnable() {
+
+        void finish() {
+            stopLoop();
+        }
+
         @Override
         public void run() {
             if (isOpenLoop) {
-                Log.i(TAG, "loopTask sendEmptyMessage");
-                handler.sendEmptyMessage(MESSAGE_FLAG);
+                if (DEBUG)
+                    Log.i(TAG, "mLoopTask sendEmptyMessage");
+                setCurrentItem(getNextPosition());
+                postDelayed(this, intervalTime);
             }
         }
-
-    };
+    }
 }
